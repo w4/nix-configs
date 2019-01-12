@@ -10,9 +10,13 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "cloud.doyle.la"; # Define your hostname.
+  networking.hostName = "cloud"; # Define your hostname.
 
+  # Set your time zone.
   time.timeZone = "Europe/London";
+
+  # Enable the OpenSSH daemon.
+  services.openssh.enable = true;
 
   fileSystems."/share" = {
     device = "10.0.0.9:/data/cloud";
@@ -29,7 +33,8 @@
 
   services.nextcloud = {
     enable = true;
-    hostName = "cloud.home.jordandoyle.uk";
+    hostName = "shed.doyle.la";
+    https = true;
     home = "/share/nextcloud";
     nginx.enable = true;
 
@@ -52,8 +57,7 @@
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-  services.openssh.enable = true;
-
+  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jordan = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
