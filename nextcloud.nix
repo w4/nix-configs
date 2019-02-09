@@ -1,3 +1,7 @@
+# Edit this configuration file to define what should be installed on
+# your system.  Help is available in the configuration.nix(5) man page
+# and in the NixOS manual (accessible by running ‘nixos-help’).
+
 { config, pkgs, ... }:
 
 {
@@ -6,13 +10,14 @@
       ./hardware-configuration.nix
     ];
 
+  system.autoUpgrade.enable = true;
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "cloud"; # Define your hostname.
+  networking.hostName = "cloud.vm.home.jordandoyle.uk"; # Define your hostname.
 
-  # Set your time zone.
   time.timeZone = "Europe/London";
 
   # Enable the OpenSSH daemon.
@@ -21,6 +26,7 @@
   fileSystems."/share" = {
     device = "10.0.0.9:/data/cloud";
     fsType = "nfs";
+    options = ["x-systemd.automount" "noauto"];
   };
 
   services.postgresql = {
@@ -55,9 +61,8 @@
     after = ["postgresql.service"];
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [ 80 ];
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jordan = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -71,3 +76,4 @@
   system.stateVersion = "18.09"; # Did you read the comment?
 
 }
+
