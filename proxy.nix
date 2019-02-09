@@ -10,6 +10,8 @@
       ./hardware-configuration.nix
     ];
 
+  system.autoUpgrade.enable = true;
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -18,12 +20,6 @@
 
   # Set your time zone.
   time.timeZone = "Europe/London";
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  # environment.systemPackages = with pkgs; [
-  #   wget vim
-  # ];
 
   services.haproxy = {
     enable = true;
@@ -154,7 +150,6 @@
   networking.firewall.allowedTCPPorts = [ 80 443 8080 ];
   networking.firewall.allowedUDPPorts = [ 443 ];
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jordan = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
