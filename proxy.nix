@@ -28,18 +28,25 @@
   services.haproxy = {
     enable = true;
     config = ''
+      global
+        maxconn 4096
+
+        ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS
+        ssl-default-bind-options no-sslv3 no-tlsv10
+        tune.ssl.default-dh-param 2048
+
       defaults
-        log     global
-        mode    http
-        option  httplog
-        option  dontlognull
+        log    global
+        mode   http
+        option httplog
+        option dontlognull
         option redispatch
         option http-use-htx
         retries 3
-        maxconn 2048
-        timeout connect 5000
-        timeout client 50000
-        timeout server 50000
+        maxconn 4096
+        timeout connect 20s
+        timeout client 10m
+        timeout server 10m
 
       frontend fe-stats
         bind *:8080
@@ -49,7 +56,7 @@
 
       frontend fe-http
         bind :::80 v4v6
-        bind :::443 v4v6 ssl crt /var/lib/acme/shed.doyle.la/full.pem crt /var/lib/acme/plex.doyle.la/full.pem alpn h2,http/1.1
+        bind :::443 v4v6 ssl crt /var/lib/acme/proxy.vm.home.jordandoyle.uk/full.pem crt /var/lib/acme/jordandoyle.uk/full.pem crt /var/lib/acme/bs.doyle.la/full.pem crt /var/lib/acme/shed.doyle.la/full.pem crt /var/lib/acme/plex.doyle.la/full.pem crt /var/lib/acme/doyle.la/full.pem crt /var/lib/acme/from.doyle.la/full.pem alpn h2,http/1.1
 
         option forwardfor
         http-request add-header X-CLIENT-IP %[src]
@@ -67,7 +74,19 @@
         acl plex-acl hdr(host) -i plex.doyle.la
         use_backend be-plex if plex-acl
 
+        acl blockstore-fe-acl hdr(host) -i bs.doyle.la
+        use_backend be-blockstore-fe if blockstore-fe-acl
+
+        acl blockstore-acl hdr(host) -i jordandoyle.uk www.jordandoyle.uk doyle.la www.doyle.la from.doyle.la
+        use_backend be-blockstore if blockstore-acl
+
         http-response add-header X-App-Server %b/%s
+
+      backend be-blockstore
+        server blockstore 10.0.0.23:80
+
+      backend be-blockstore-fe
+        server blockstore-fe 10.0.0.23:9000
 
       backend be-cloud
         server cloud 10.0.0.14:80
@@ -84,11 +103,32 @@
   systemd.services.haproxy.wants = [ "acme-selfsigned-certificates.target" "acme-certificates.target" ];
 
   security.acme.certs = {
+    "proxy.vm.home.jordandoyle.uk" = {
+      webroot = "/var/www/html";
+      email = "jordan@doyle.la";
+    };
     "plex.doyle.la" = {
       webroot = "/var/www/html";
       email = "jordan@doyle.la";
     };
     "shed.doyle.la" = {
+      webroot = "/var/www/html";
+      email = "jordan@doyle.la";
+    };
+    "bs.doyle.la" = {
+      webroot = "/var/www/html";
+      email = "jordan@doyle.la";
+    };
+    "from.doyle.la" = {
+      webroot = "/var/www/html";
+      email = "jordan@doyle.la";
+    };
+    "jordandoyle.uk" = {
+      extraDomains = { "www.jordandoyle.uk" = null; };
+      webroot = "/var/www/html";
+      email = "jordan@doyle.la";
+    };
+    "doyle.la" = {
       webroot = "/var/www/html";
       email = "jordan@doyle.la";
     };
