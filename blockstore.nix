@@ -16,7 +16,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "blockstore.vm.home.jordandoyle.uk"; # Define your hostname.
+  networking.hostName = "blockstore"; # Define your hostname.
 
   time.timeZone = "Europe/London";
 

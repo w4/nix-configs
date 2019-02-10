@@ -16,7 +16,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "proxy.home.jordandoyle.uk"; # Define your hostname.
+  networking.hostName = "proxy"; # Define your hostname.
 
   # Set your time zone.
   time.timeZone = "Europe/London";

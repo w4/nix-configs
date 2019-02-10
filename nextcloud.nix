@@ -16,7 +16,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "cloud.vm.home.jordandoyle.uk"; # Define your hostname.
+  networking.hostName = "cloud"; # Define your hostname.
 
   time.timeZone = "Europe/London";
 
