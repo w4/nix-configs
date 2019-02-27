@@ -41,6 +41,14 @@
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
 
+    virtualHosts."doyl.net" = {
+      locations."/".extraConfig = ''
+        rewrite ^/$ /doyl.net/index.html break;
+        proxy_set_header Host $http_host;
+        proxy_pass http://localhost:9000/doyl.net/;
+      '';
+    };
+
     virtualHosts."jordandoyle.uk" = {
       serverAliases = [ "www.jordandoyle.uk" ];
       locations."/".extraConfig = ''
@@ -85,4 +93,3 @@
   system.stateVersion = "18.09"; # Did you read the comment?
 
 }
-
