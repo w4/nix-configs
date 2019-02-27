@@ -29,11 +29,42 @@
     options = ["x-systemd.automount" "noauto"];
   };
 
+  systemd.services.gitea-github-sync = {
+    enable = true;
+    description = "Sync from Gitea to Github";
+    serviceConfig = {
+      User = "gitea";
+      Type = "simple";
+      ExecStart = "/share/gitea-github-mirror/workspace/src/git.circuitco.de/self/gitea-github-mirror/run";
+      Restart = "on-failure";
+    };
+    requires = ["postgresql.service"];
+    after = ["postgresql.service"];
+  };
+
   services.postgresql = {
     enable = true;
     initialScript = pkgs.writeText "psql-init" ''
       CREATE ROLE nextcloud WITH LOGIN;
       CREATE DATABASE nextcloud WITH OWNER nextcloud;
+    '';
+  };
+
+  services.gitea = {
+    enable = true;
+    database = {
+      type = "postgres";
+      passwordFile = "/share/gitea/dbpass";
+    };
+    stateDir = "/share/gitea";
+
+    domain = "git.doyle.la";
+    rootUrl = "https://git.doyle.la/";
+    cookieSecure = true;
+
+    extraConfig = ''
+      [service]
+      DISABLE_REGISTRATION = true
     '';
   };
 
@@ -61,7 +92,7 @@
     after = ["postgresql.service"];
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 ];
+  networking.firewall.allowedTCPPorts = [ 80 3000 ];
 
   users.users.jordan = {
     isNormalUser = true;
@@ -76,4 +107,3 @@
   system.stateVersion = "18.09"; # Did you read the comment?
 
 }
-
