@@ -35,34 +35,13 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
-  services.stubby = {
-    enable = true;
-    listenAddresses = [ "127.0.0.1@43" "0::1@43" ];
-
-    queryPaddingBlocksize = 256;
-
-    upstreamServers = ''
-      - address_data: 1.1.1.1
-        tls_port: 843
-        tls_auth_name: "cloudflare-dns.com"
-      - address_data: 1.0.0.1
-        tls_auth_name: "cloudflare-dns.com"
-      - address_data: 2606:4700:4700::1111
-        tls_auth_name: "cloudflare-dns.com"
-      - address_data: 2606:4700:4700::1001
-        tls_auth_name: "cloudflare-dns.com"
-    '';
-  };
-
   services.unbound = {
     enable = true;
     allowedAccess = [ "10.0.0.0/8" "127.0.0.0/24" ];
     interfaces = [ "0.0.0.0" ];
-    forwardAddresses = [ "127.0.0.1@43" ];
     extraConfig = ''
     #
-      include: /etc/dhcp_hosts
-      tcp-upstream: yes
+      # tcp-upstream: yes
       serve-expired: yes
       qname-minimisation: yes
       aggressive-nsec: yes
@@ -72,6 +51,17 @@
       prefetch-key: yes
       rrset-roundrobin: yes
       use-caps-for-id: yes
+      do-not-query-localhost: no
+      unblock-lan-zones: yes
+      insecure-lan-zones: yes
+      include: /etc/dhcp_hosts
+      domain-insecure: "10.in-addr.arpa"
+      domain-insecure: "home.jordandoyle.uk"
+      domain-insecure: "doyle.la"
+
+    stub-zone:
+      name: "doyle.la"
+      stub-addr: 10.0.0.25
     '';
   };
 
@@ -92,4 +82,3 @@
   system.stateVersion = "18.09"; # Did you read the comment?
 
 }
-
