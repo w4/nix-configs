@@ -21,7 +21,7 @@
   services.cron = {
     enable = true;
     systemCronJobs = [
-      ''*/5 * * * * echo -e "local-zone: home.jordandoyle.uk transparent\n$(curl http://10.0.0.1:4400/ | awk '{print "local-data: \""$2" A "$1"\""}' | sort -u)" > /etc/dhcp_hosts''
+      ''*/5 * * * *     root    echo -e "local-zone: \"home.jordandoyle.uk\" transparent\nlocal-zone: \"10.in-addr.arpa.\" static\n$(curl http://10.0.0.1:4400/ | awk '{print "local-data: \"" $2 ". A "$1"\""; split($1, z, "."); print "local-data: \"" z[4] "." z[3] "." z[2] "." z[1] ".in-addr.arpa. PTR " $2 "\""}' | sort -u)" > /etc/dhcp_hosts''
     ];
   };
 
