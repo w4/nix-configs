@@ -68,6 +68,14 @@
     '';
   };
 
+  services.nginx.virtualHosts."git.doyle.la" = {
+    locations = {
+      "/" = {
+        extraConfig = "proxy_pass http://localhost:3000;";
+      };
+    };
+  };
+
   services.nextcloud = {
     enable = true;
     hostName = "shed.doyle.la";
@@ -92,7 +100,12 @@
     after = ["postgresql.service"];
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 3000 ];
+  systemd.services."nextcloud" = {
+    requires = ["postgresql.service"];
+    after = ["postgresql.service"];
+  };
+
+  networking.firewall.allowedTCPPorts = [ 80 ];
 
   users.users.jordan = {
     isNormalUser = true;
