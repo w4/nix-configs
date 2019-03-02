@@ -56,7 +56,7 @@
 
       frontend fe-http
         bind :::80 v4v6
-        bind :::443 v4v6 ssl crt /var/lib/acme/proxy.vm.gaff.doyl.net/full.pem crt /var/lib/acme/jordandoyle.uk/full.pem crt /var/lib/acme/bs.doyle.la/full.pem crt /var/lib/acme/shed.doyle.la/full.pem crt /var/lib/acme/plex.doyle.la/full.pem crt /var/lib/acme/doyle.la/full.pem crt /var/lib/acme/from.doyle.la/full.pem crt /var/lib/acme/bin.doyle.la/full.pem crt /var/lib/acme/git.doyle.la/full.pem crt /var/lib/acme/doyl.net/full.pem alpn h2,http/1.1
+        bind :::443 v4v6 ssl crt /var/lib/acme/proxy.vm.gaff.doyl.net/full.pem crt /var/lib/acme/jordandoyle.uk/full.pem crt /var/lib/acme/bs.doyle.la/full.pem crt /var/lib/acme/shed.doyle.la/full.pem crt /var/lib/acme/plex.doyle.la/full.pem crt /var/lib/acme/doyle.la/full.pem crt /var/lib/acme/from.doyle.la/full.pem crt /var/lib/acme/bin.doyle.la/full.pem crt /var/lib/acme/git.doyle.la/full.pem crt /var/lib/acme/doyl.net/full.pem crt /var/lib/acme/d.oily.dev/full.pem alpn h2,http/1.1
 
         option forwardfor
         http-request add-header X-CLIENT-IP %[src]
@@ -68,10 +68,7 @@
         acl letsencrypt-acl path_beg /.well-known/acme-challenge/
         use_backend be-letsencrypt if letsencrypt-acl
 
-        acl git-acl hdr(host) -i git.doyle.la
-        use_backend be-git if git-acl
-
-        acl cloud-acl hdr(host) -i shed.doyle.la
+        acl cloud-acl hdr(host) -i shed.doyle.la git.doyle.la
         use_backend be-cloud if cloud-acl
 
         acl plex-acl hdr(host) -i plex.doyle.la
@@ -83,7 +80,13 @@
         acl paste-acl hdr(host) -i bin.doyle.la
         use_backend be-paste if paste-acl
 
-        acl blockstore-acl hdr(host) -i jordandoyle.uk www.jordandoyle.uk doyle.la www.doyle.la from.doyle.la doyl.net
+        acl jordandoyle-acl hdr(host) -i jordandoyle.uk
+        http-request redirect code 301 location https://doyle.la if jordandoyle-acl !letsencrypt-acl
+
+        acl oily-no-d-acl hdr(host) -i oily.dev
+        http-request redirect code 301 location https://d.oily.dev if oily-no-d-acl !letsencrypt-acl
+
+        acl blockstore-acl hdr(host) -i doyle.la www.doyle.la from.doyle.la doyl.net d.oily.dev
         use_backend be-blockstore if blockstore-acl
 
         http-response add-header X-App-Server %b/%s
@@ -96,9 +99,6 @@
 
       backend be-blockstore-fe
         server blockstore-fe 10.0.0.23:9000
-
-      backend be-git
-        server cloud 10.0.0.14:3000
 
       backend be-cloud
         server cloud 10.0.0.14:80
@@ -116,6 +116,11 @@
 
   security.acme.certs = {
     "proxy.vm.gaff.doyl.net" = {
+      webroot = "/var/www/html";
+      email = "jordan@doyle.la";
+    };
+    "d.oily.dev" = {
+      extraDomains = { "oily.dev" = "/var/www/html"; };
       webroot = "/var/www/html";
       email = "jordan@doyle.la";
     };
