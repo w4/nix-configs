@@ -41,6 +41,14 @@
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
 
+    virtualHosts."d.oily.dev" = {
+      locations."/".extraConfig = ''
+        rewrite ^/$ /d.oily.dev/index.html break;
+        proxy_set_header Host $http_host;
+        proxy_pass http://localhost:9000/d.oily.dev/;
+      '';
+    };
+
     virtualHosts."doyl.net" = {
       locations."/".extraConfig = ''
         rewrite ^/$ /doyl.net/index.html break;
