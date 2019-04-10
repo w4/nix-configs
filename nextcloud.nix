@@ -11,6 +11,9 @@
     ];
 
   system.autoUpgrade.enable = true;
+  nix.gc.automatic = true;
+  nix.gc.dates = "daily";
+  nix.gc.options = "-d";
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
